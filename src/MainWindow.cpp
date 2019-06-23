@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_bgOutput.addButton(ui->rbStr, 0);
     m_bgOutput.addButton(ui->rbHex, 1);
 
+    //设置最大显示行数
+    ui->pteOutput->document()->setMaximumBlockCount(100);
+
     initConf();
     runLog();
     runSvr();

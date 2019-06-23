@@ -46,6 +46,7 @@ SvrEngine::~SvrEngine()
 
 void SvrEngine::svrStart(const SVR_CONF conf)
 {
+    m_tSvrConf = conf;
     startListen(conf.addrSvr, conf.nPort);
     startSockThd(conf.nNetThd);
 }

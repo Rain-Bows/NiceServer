@@ -3,7 +3,7 @@ LogRecord* LogRecord::sm_pInstance = nullptr;
 QMutex LogRecord::sm_mutexIns;
 QMutex LogRecord::sm_mutexLog;
 QFile LogRecord::sm_logFile;
-QTextStream LogRecord::sm_logStream;
+//QTextStream LogRecord::sm_logStream;
 
 void reLog(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -61,9 +61,13 @@ void reLog(QtMsgType type, const QMessageLogContext &context, const QString &msg
         }
     }
 
-    LogRecord::sm_logStream.setDevice(&LogRecord::sm_logFile);
-    LogRecord::sm_logStream << log << "\n";
-    LogRecord::sm_logStream.flush();
+    QTextStream tsLog(&LogRecord::sm_logFile);
+    tsLog << log << "\n";
+    tsLog.flush();
+
+//    LogRecord::sm_logStream.setDevice(&LogRecord::sm_logFile);    //不建议使用,sm_logStream内存无法及时释放
+//    LogRecord::sm_logStream << log << "\n";
+//    LogRecord::sm_logStream.flush();
 
     LogRecord::sm_mutexLog.unlock();
 }

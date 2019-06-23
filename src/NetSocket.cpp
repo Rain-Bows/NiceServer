@@ -22,9 +22,8 @@ void NetSocket::slot_createSock(QObject *obj, qintptr sockDesp)
     {
         if(pSock->setSocketDescriptor(sockDesp))
         {
-            m_mutexSock.lock();
+            QMutexLocker locker(&m_mutexSock);
             m_lSock.append(pSock);
-            m_mutexSock.unlock();
 
             connect(pSock, SIGNAL(readyRead()), this, SLOT(slot_readReady()));
             connect(pSock, SIGNAL(disconnected()), this, SLOT(slot_disconnected()));
@@ -41,49 +40,47 @@ void NetSocket::slot_readReady()
         QByteArray baRecv = pSock->readAll();
         emit sign_readReady(pSock, baRecv);
     }
-
 }
 
 void NetSocket::slot_disconnected()
 {
+    QMutexLocker locker(&m_mutexSock);
     QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
+    m_lSock.removeOne(pSock);
+    pSock->deleteLater();
+
     emit sign_dealloc(pSock);
     qDebug("\"[%p]: disconnected\"", pSock);
 }
 
 void NetSocket::slot_sendData(QObject *pSock, QByteArray baData)
 {
-    m_mutexSock.lock();
+    QMutexLocker locker(&m_mutexSock);
     if(!m_lSock.contains(pSock))
     {
-        m_mutexSock.unlock();
         return;
     }
     QTcpSocket *pTcpSock = qobject_cast<QTcpSocket*>(pSock);
     pTcpSock->write(baData);
-    m_mutexSock.unlock();
 }
 
 void NetSocket::slot_abortSock(QObject *pSock)
 {
-    m_mutexSock.lock();
+    QMutexLocker locker(&m_mutexSock);
     if(!m_lSock.contains(pSock))
     {
-        m_mutexSock.unlock();
         return;
     }
     QTcpSocket * pTcpSock = qobject_cast<QTcpSocket*>(pSock);
     pTcpSock->abort();
-    m_mutexSock.unlock();
 }
 
 void NetSocket::slot_abortSock()
 {
-    m_mutexSock.lock();
+    QMutexLocker locker(&m_mutexSock);
     for (int i=0; i<m_lSock.size(); i++)
     {
         QTcpSocket * pTcpSock = qobject_cast<QTcpSocket*>(m_lSock[i]);
         pTcpSock->abort();
     }
-    m_mutexSock.unlock();
 }

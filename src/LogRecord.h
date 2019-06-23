@@ -35,7 +35,7 @@ private:
 
 public:
     static QFile        sm_logFile;
-    static QTextStream  sm_logStream;
+    //static QTextStream  sm_logStream;
     static QMutex       sm_mutexLog;
 };
 
